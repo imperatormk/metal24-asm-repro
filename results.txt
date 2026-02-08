@@ -1,0 +1,75 @@
+Date        : 2026-02-08 15:38:48 +0000
+macOS       : Version 26.3 (Build 25D5112c)
+Device      : Apple M1 Pro
+Metal       : Apple metal version 32023.335 (metalfe-32023.335)
+Target: air64-apple-darwin25.3.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/metal/current/bin
+
+--- Generated shader source (1174 chars) ---
+#include <metal_stdlib>
+using namespace metal;
+
+struct _simdgroup_event_t;
+
+thread _simdgroup_event_t*
+__metal_simdgroup_async_copy_1d(
+  ulong, ulong, threadgroup void *, const device void *, ulong)
+  __asm("air.simdgroup_async_copy_1d.p3i8.p1i8");
+
+thread _simdgroup_event_t*
+__metal_simdgroup_async_copy_1d(
+  ulong, ulong, device void *, const threadgroup void *, ulong)
+  __asm("air.simdgroup_async_copy_1d.p1i8.p3i8");
+
+void __metal_wait_simdgroup_events(
+  int, thread _simdgroup_event_t**)
+  __asm("air.wait_simdgroup_events");
+
+kernel void async_copy_test(
+    device const float *src [[buffer(0)]],
+  device float       *dst [[buffer(1)]],
+  uint tid [[thread_position_in_grid]],
+  uint simd_lane [[thread_index_in_simdgroup]])
+{
+  threadgroup float tg_buf[32];
+
+  // async copy 32 floats: device -> threadgroup
+  thread _simdgroup_event_t* ev =
+      __metal_simdgroup_async_copy_1d(
+          sizeof(float),
+          32,
+          (threadgroup void*)tg_buf,
+          (const device void*)(src + (tid / 32) * 32),
+          0);
+
+  __metal_wait_simdgroup_events(1, &ev);
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+
+  dst[tid] = tg_buf[simd_lane] * 2.0f;
+}
+--- End generated source ---
+
+RESULT: FAIL (expected on macOS 26)
+Error : Error Domain=MTLLibraryErrorDomain Code=3 "program_source:9:9: error: illegal string literal in 'asm'
+  __asm("air.simdgroup_async_copy_1d.p3i8.p1i8");
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+RESULT: PASS -- codegen + CLI + metal2.4 works on macOS 26!
+Sample : [0]=2.0, [1]=4.0, [2]=6.0, [3]=8.0, [31]=64.0
+RESULT : PASS -- kernel ran correctly! All 32 values match.
+Shader source was assembled at runtime via Swift string interpolation,
+mirroring metal-flash-attention's codegen pattern (createSource()):
+
+  createSource()
+    -> createSimdgroupEventHeader()   // __asm declarations
+    -> createBufferBindings()          // device buffer args
+    -> createAsyncCopyBody()           // kernel body
+
+Then compiled via CLI:
+  xcrun metal -std=macos-metal2.4 -c src.metal -o src.air
+  xcrun metallib src.air -o src.metallib
+  device.makeLibrary(URL: metallib)
+
+This proves the codegen->CLI->metallib->GPU path works on macOS 26.
+ALL TESTS PASSED
