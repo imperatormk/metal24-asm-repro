@@ -1,10 +1,10 @@
-Date        : 2026-02-08 15:38:48 +0000
+Date        : 2026-02-08 17:53:58 +0000
 macOS       : Version 26.3 (Build 25D5112c)
 Device      : Apple M1 Pro
-Metal       : Apple metal version 32023.335 (metalfe-32023.335)
+Metal       : Apple metal version 32023.850 (metalfe-32023.850.10)
 Target: air64-apple-darwin25.3.0
 Thread model: posix
-InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/metal/current/bin
+InstalledDir: /private/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.3.48.0.5yFjPK/Metal.xctoolchain/usr/metal/current/bin
 
 --- Generated shader source (1174 chars) ---
 #include <metal_stdlib>
@@ -55,9 +55,49 @@ Error : Error Domain=MTLLibraryErrorDomain Code=3 "program_source:9:9: error: il
   __asm("air.simdgroup_async_copy_1d.p3i8.p1i8");
         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-RESULT: PASS -- codegen + CLI + metal2.4 works on macOS 26!
-Sample : [0]=2.0, [1]=4.0, [2]=6.0, [3]=8.0, [31]=64.0
-RESULT : PASS -- kernel ran correctly! All 32 values match.
+RESULT: FAIL -- Error Domain=repro Code=1 "compile: /var/folders/x6/qv4hp8b560nf5hy56k199jzr0000gn/T/mfa_76E7552E-7107-4FC7-80F4-CD88C469D5AC.metal:9:9: error: illegal string literal in 'asm'
+  __asm("air.simdgroup_async_copy_1d.p3i8.p1i8");
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/x6/qv4hp8b560nf5hy56k199jzr0000gn/T/mfa_76E7552E-7107-4FC7-80F4-CD88C469D5AC.metal:14:9: error: illegal string literal in 'asm'
+  __asm("air.simdgroup_async_copy_1d.p1i8.p3i8");
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/x6/qv4hp8b560nf5hy56k199jzr0000gn/T/mfa_76E7552E-7107-4FC7-80F4-CD88C469D5AC.metal:18:9: error: illegal string literal in 'asm'
+  __asm("air.wait_simdgroup_events");
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/x6/qv4hp8b560nf5hy56k199jzr0000gn/T/mfa_76E7552E-7107-4FC7-80F4-CD88C469D5AC.metal:30:7: error: use of undeclared identifier '__metal_simdgroup_async_copy_1d'
+      __metal_simdgroup_async_copy_1d(
+      ^
+/var/folders/x6/qv4hp8b560nf5hy56k199jzr0000gn/T/mfa_76E7552E-7107-4FC7-80F4-CD88C469D5AC.metal:37:3: error: use of undeclared identifier '__metal_wait_simdgroup_events'; did you mean '__metal_wait_wg_events'?
+  __metal_wait_simdgroup_events(1, &ev);
+  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  __metal_wait_wg_events
+/var/folders/x6/qv4hp8b560nf5hy56k199jzr0000gn/T/mfa_76E7552E-7107-4FC7-80F4-CD88C469D5AC.metal:37:3: note: '__metal_wait_wg_events' declared here
+/var/folders/x6/qv4hp8b560nf5hy56k199jzr0000gn/T/mfa_76E7552E-7107-4FC7-80F4-CD88C469D5AC.metal:37:36: error: cannot initialize a parameter of type '__metal_threadgroup_event_t *' with an rvalue of type '_simdgroup_event_t **'
+  __metal_wait_simdgroup_events(1, &ev);
+                                   ^~~
+6 errors generated.
+" UserInfo={NSLocalizedDescription=compile: /var/folders/x6/qv4hp8b560nf5hy56k199jzr0000gn/T/mfa_76E7552E-7107-4FC7-80F4-CD88C469D5AC.metal:9:9: error: illegal string literal in 'asm'
+  __asm("air.simdgroup_async_copy_1d.p3i8.p1i8");
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/x6/qv4hp8b560nf5hy56k199jzr0000gn/T/mfa_76E7552E-7107-4FC7-80F4-CD88C469D5AC.metal:14:9: error: illegal string literal in 'asm'
+  __asm("air.simdgroup_async_copy_1d.p1i8.p3i8");
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/x6/qv4hp8b560nf5hy56k199jzr0000gn/T/mfa_76E7552E-7107-4FC7-80F4-CD88C469D5AC.metal:18:9: error: illegal string literal in 'asm'
+  __asm("air.wait_simdgroup_events");
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/x6/qv4hp8b560nf5hy56k199jzr0000gn/T/mfa_76E7552E-7107-4FC7-80F4-CD88C469D5AC.metal:30:7: error: use of undeclared identifier '__metal_simdgroup_async_copy_1d'
+      __metal_simdgroup_async_copy_1d(
+      ^
+/var/folders/x6/qv4hp8b560nf5hy56k199jzr0000gn/T/mfa_76E7552E-7107-4FC7-80F4-CD88C469D5AC.metal:37:3: error: use of undeclared identifier '__metal_wait_simdgroup_events'; did you mean '__metal_wait_wg_events'?
+  __metal_wait_simdgroup_events(1, &ev);
+  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  __metal_wait_wg_events
+/var/folders/x6/qv4hp8b560nf5hy56k199jzr0000gn/T/mfa_76E7552E-7107-4FC7-80F4-CD88C469D5AC.metal:37:3: note: '__metal_wait_wg_events' declared here
+/var/folders/x6/qv4hp8b560nf5hy56k199jzr0000gn/T/mfa_76E7552E-7107-4FC7-80F4-CD88C469D5AC.metal:37:36: error: cannot initialize a parameter of type '__metal_threadgroup_event_t *' with an rvalue of type '_simdgroup_event_t **'
+  __metal_wait_simdgroup_events(1, &ev);
+                                   ^~~
+6 errors generated.
+}
 Shader source was assembled at runtime via Swift string interpolation,
 mirroring metal-flash-attention's codegen pattern (createSource()):
 
@@ -72,4 +112,4 @@ Then compiled via CLI:
   device.makeLibrary(URL: metallib)
 
 This proves the codegen->CLI->metallib->GPU path works on macOS 26.
-ALL TESTS PASSED
+SOME TESTS FAILED -- see details above
